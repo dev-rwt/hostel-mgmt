@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation Bar -->
+    <div class="navbar bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-lg font-bold">Hostel Management System</h1>
+            <div class="nav-links">
+                <span th:if="${isAuthenticated}">
+                    Welcome, <span th:text="${username}"></span>
+                    <a href="/auth/logout" class="ml-4 underline">Logout</a>
+                </span>
+                <span th:unless="${isAuthenticated}">
+                    <a href="/auth/register" class="ml-4 underline">Register</a>
+                    <a href="/auth/login" class="ml-4 underline">Login</a>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details -->
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6 text-center">User Details</h1>
+        <div class="bg-white p-8 rounded shadow-md">
+            <p class="mb-4"><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+            <p class="mb-4"><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+            <p class="mb-4"><strong>Role:</strong> <span th:text="${user.role}"></span></p>
+            <a href="/" class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

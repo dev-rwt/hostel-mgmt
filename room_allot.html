@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Room Allocation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Include Navbar -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <div class="container mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+        <h2 class="text-2xl font-bold mb-4">Allocate Room</h2>
+
+        <!-- Student Search Input -->
+        <label class="block mb-2 font-semibold">Select Student:</label>
+        <input type="text" id="studentSearch" placeholder="Search student..." class="w-full p-2 border rounded" onkeyup="filterStudents()">
+        <ul id="studentList" class="border rounded mt-1 bg-white max-h-40 overflow-y-auto hidden"></ul>
+        
+        <!-- Hostel Selection -->
+        <label class="block mt-4 mb-2 font-semibold">Select Hostel:</label>
+        <select id="hostelSelect" class="w-full p-2 border rounded" onchange="loadRooms()">
+            <option value="">Select a hostel</option>
+            <option th:each="hostel : ${hostels}" th:value="${hostel.id}" th:text="${hostel.name}"></option>
+        </select>
+
+        <!-- Room Selection -->
+        <label class="block mt-4 mb-2 font-semibold">Select Room:</label>
+        <select id="roomSelect" class="w-full p-2 border rounded">
+            <option value="">Select a room</option>
+        </select>
+
+        <!-- Submit Button -->
+        <button class="mt-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="allocateRoom()">Allocate</button>
+    </div>
+
+    <script>
+        let students = []; // Will be filled dynamically
+
+        // Fetch students who have not been allotted a room
+        function fetchStudents() {
+            fetch('/students/unallocated') // Backend endpoint returning JSON of students
+                .then(response => response.json())
+                .then(data => {
+                    students = data;
+                });
+        }
+
+        // Filter student names as the user types
+        function filterStudents() {
+            let input = document.getElementById('studentSearch').value.toLowerCase();
+            let studentList = document.getElementById('studentList');
+            studentList.innerHTML = '';
+
+            if (input.length === 0) {
+                studentList.classList.add('hidden');
+                return;
+            }
+
+            let filtered = students.filter(student => student.name.toLowerCase().includes(input));
+            filtered.forEach(student => {
+                let li = document.createElement('li');
+                li.textContent = student.name;
+                li.className = 'p-2 cursor-pointer hover:bg-gray-200';
+                li.onclick = () => {
+                    document.getElementById('studentSearch').value = student.name;
+                    document.getElementById('studentSearch').dataset.studentId = student.id;
+                    studentList.classList.add('hidden');
+                };
+                studentList.appendChild(li);
+            });
+
+            studentList.classList.remove('hidden');
+        }
+
+        // Load available rooms when a hostel is selected
+        function loadRooms() {
+            let hostelId = document.getElementById('hostelSelect').value;
+            let roomSelect = document.getElementById('roomSelect');
+            roomSelect.innerHTML = '<option value="">Select a room</option>';
+
+            if (!hostelId) return;
+
+            fetch(`/hostels/${hostelId}/available-rooms`) // Backend endpoint returning available rooms
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(room => {
+                        let option = document.createElement('option');
+                        option.value = room.id;
+                        option.textContent = room.roomNumber;
+                        roomSelect.appendChild(option);
+                    });
+                });
+        }
+
+        // Submit allocation
+        function allocateRoom() {
+            let studentId = document.getElementById('studentSearch').dataset.studentId;
+            let roomId = document.getElementById('roomSelect').value;
+
+            if (!studentId || !roomId) {
+                alert('Please select both student and room!');
+                return;
+            }
+
+            fetch('/allocate-room', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentId, roomId })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Load students on page load
+        fetchStudents();
+    </script>
+</body>
+</html>

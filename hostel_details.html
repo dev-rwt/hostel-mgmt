@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-4">Hostel Details</h1>
+        <p class="mb-6">Welcome to <span class="font-semibold" th:text="${hostel.name}"></span> Hostel.</p>
+
+        <!-- General Parameters -->
+        <h2 class="text-2xl font-semibold mb-2">General Information</h2>
+        <ul class="list-disc pl-5 mb-6">
+            <li><strong>Hostel Name:</strong> <span th:text="${hostel.name}"></span></li>
+            <li><strong>Wing:</strong> <span th:text="${hostel.wing}"></span></li>
+            <li><strong>Total Rooms:</strong> <span th:text="${hostel.rooms.size()}"></span></li>
+        </ul>
+
+        <!-- Students List Grouped by Wings -->
+        <h2 class="text-2xl font-semibold mb-2">Students by Wings</h2>
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="py-2 px-4 border-b">Wing</th>
+                    <th class="py-2 px-4 border-b">Room Number</th>
+                    <th class="py-2 px-4 border-b">Student Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="room : ${hostel.rooms}">
+                    <td class="py-2 px-4 border-b" th:text="${room.hostel.wing}"></td>
+                    <td class="py-2 px-4 border-b" th:text="${room.roomNumber}"></td>
+                    <td class="py-2 px-4 border-b">
+                        <ul class="list-disc pl-5">
+                            <li th:each="student : ${room.students}" th:text="${student.name}"></li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+        <a href="/hostels" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">Back to Hostels</a>
+    </div>
+</body>
+
+</html>
